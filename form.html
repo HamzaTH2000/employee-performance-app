@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Performance Classification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            background-color: rgba(255, 255, 255, 0.67);
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.4);
+            position: relative;
+        }
+        
+        .form-title {
+            grid-column: 1 / -1;
+            color: #001f3f;
+            text-align: center;
+            font-size: 25px;
+            margin: 0 0 25px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0,31,63,0.2);
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 550;
+            color: #001f3f;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(0,0,0,0.15);
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: rgba(255,255,255,0.9);
+            transition: all 0.3s ease;
+            font-size: 15px;
+            color: #222;
+            font-weight: 500;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #005f99;
+            box-shadow: 0 0 0 3px rgba(0,95,153,0.2);
+            background-color: white;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 5px;
+        }
+        
+        .slider-value {
+            min-width: 24px;
+            text-align: center;
+            font-weight: 700;
+            color: #005f99;
+            font-size: 16px;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            padding: 0;
+            margin: 8px 0;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            background: #4CAF50;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #3d8b40;
+            transform: scale(1.1);
+        }
+        
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: -4px;
+            font-size: 12px;
+            color: #555;
+            font-weight: 450;
+        }
+        
+        .button-container {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .predict-btn, .reset-btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 550;
+            transition: all 0.3s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            letter-spacing: 0.5px;
+        }
+        
+        .predict-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .predict-btn:hover {
+            background-color: #3d8b40;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        }
+        
+        .reset-btn {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background-color: #e55555;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        }
+        
+        .prediction-result {
+            position: fixed;
+            bottom: 200px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: slideInRight 0.5s ease-out;
+            z-index: 1000;
+            max-width: 350px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.3);
+            line-height: 1.4;
+        }
+        
+        .prediction-result.poor {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+        
+        .prediction-result.needs {
+            background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
+        }
+        
+        .prediction-result.meets {
+            background: linear-gradient(135deg, #42a5f5 0%, #2196f3 100%);
+        }
+        
+        .prediction-result.exceeds {
+            background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        nav {
+            background-color: rgba(240, 244, 248, 0.95);
+            padding: 16px 0;
+            margin-bottom: 35px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        
+        nav div {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+            margin: 0;
+            padding: 0;
+            justify-content: center;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #001f3f;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 20px;
+            padding: 5px 0;
+            letter-spacing: 0.3px;
+        }
+        
+        nav a:hover {
+            color: #005f99;
+            transform: translateY(-1px);
+        }
+        
+        nav a[href="/prediction"] {
+            color: #005f99;
+            font-weight: 650;
+            border-bottom: 2px solid #005f99;
+            padding-bottom: 3px;
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23001f3f'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 36px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <div>
+            <ul>
+                <li><a href="/">Welcome</a></li>
+                <li><a href="/prediction">Prediction</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/history">History</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <form id="predictionForm" method="POST" action="/prediction">
+        <div class="form-container">
+            <!-- Form Title -->
+            <h2 class="form-title">Employee Performance Classification</h2>
+            
+            <!-- Left Column -->
+            <div class="form-group">
+                <label for="employee_name">Employee Name</label>
+                <input type="text" id="employee_name" name="employee_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="employee_id">Employee ID</label>
+                <input type="text" id="employee_id" name="employee_id" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender" required>
+                    <option value="Male" selected>Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" min="18" max="70" required>
+            </div>
+
+            <div class="form-group">
+                <label for="education">Education Level</label>
+                <select id="education" name="education" required>
+                    <option value="High School">High School</option>
+                    <option value="Associate">Associate</option>
+                    <option value="Bachelor" selected>Bachelor</option>
+                    <option value="Master">Master</option>
+                    <option value="PhD">PhD</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="marital_status">Marital Status</label>
+                <select id="marital_status" name="marital_status" required>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="position">Job Position</label>
+                <select id="position" name="position" required>
+                    <option value="Production Technician">Production Technician</option>
+                    <option value="Software Engineer">Software Engineer</option>
+                    <option value="IT Specialist">IT Specialist</option>
+                    <option value="Network Engineer">Network Engineer</option>
+                    <option value="Sales Representative">Sales Representative</option>
+                    <option value="Database Administrator">Database Administrator</option>
+                    <option value="HR Specialist">HR Specialist</option>
+                    <option value="Data Analyst">Data Analyst</option>
+                    <option value="Accountant">Accountant</option>
+                    <option value="QA Engineer">QA Engineer</option>
+                    <option value="Business Analyst">Business Analyst</option>
+                    <option value="Market Research Analyst">Market Research Analyst</option>
+                    <option value="Technical Support Specialist">Technical Support Specialist</option>
+                    <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+                    <option value="IT Manager">IT Manager</option>
+                    <option value="Sales Manager">Sales Manager</option>
+                    <option value="Digital Marketing Specialist">Digital Marketing Specialist</option>
+                    <option value="HR Manager">HR Manager</option>
+                    <option value="Marketing Coordinator">Marketing Coordinator</option>
+                    <option value="Finance Manager">Finance Manager</option>
+                    <option value="Marketing Manager">Marketing Manager</option>
+                    <option value="Engineering Manager">Engineering Manager</option>
+                    <option value="Production Manager">Production Manager</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="years_of_service">Years of Service</label>
+                <input type="number" id="years_of_service" name="years_of_service" min="0" max="50" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="annual_salary">Annual Salary ($)</label>
+                <input type="number" id="annual_salary" name="annual_salary" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="recruitment_source">Recruitment Source</label>
+                <select id="recruitment_source" name="recruitment_source" required>
+                    <option value="Employee Referral">Employee Referral</option>
+                    <option value="Other">Other</option>
+                    <option value="Website">Website</option>
+                    <option value="Job Fair">Job Fair</option>
+                    <option value="Indeed">Indeed</option>
+                    <option value="Google Search">Google Search</option>
+                </select>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="form-group">
+                <label for="engagement_score">Engagement Score</label>
+                <div class="slider-container">
+                    <input type="range" id="engagement_score" name="engagement_score"
+                        min="1" max="5" value="3" step="1"
+                        oninput="document.getElementById('engage-value').textContent = this.value">
+                    <span class="slider-value" id="engage-value">3</span>
+                </div>
+                <div class="range-labels">
+                    <span>1 (Very Disengaged)</span>
+                    <span>3</span>
+                    <span>5 (Very Engaged)</span>
+                </div>
+            </div>
+
+            
+            <div class="form-group">
+                <label for="satisfaction_score">Self-reported Satisfaction Score</label>
+                <div class="slider-container">
+                    <input type="range" id="satisfaction_score" name="satisfaction_score" 
+                           min="1" max="5" value="3" step="1" 
+                           oninput="document.getElementById('sat-value').textContent = this.value">
+                    <span class="slider-value" id="sat-value">3</span>
+                </div>
+                <div class="range-labels">
+                    <span>1 (Low)</span>
+                    <span>3</span>
+                    <span>5 (High)</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="special_projects">Special Projects Handled</label>
+                <input type="number" id="special_projects" name="special_projects" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="training_hours">Training Hours Completed</label>
+                <input type="number" id="training_hours" name="training_hours" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="absences">Absences (days)</label>
+                <input type="number" id="absences" name="absences" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="days_late">Days Late (last 30 days)</label>
+                <input type="number" id="days_late" name="days_late" min="0" max="30" required>
+            </div>
+            
+            <div class="button-container">
+                <button type="submit" class="predict-btn">Predict Performance</button>
+                <button type="button" class="reset-btn" onclick="resetForm()">Reset Form</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Prediction result popup -->
+    {% if prediction_message %}
+    <div class="prediction-result {% if 'Poor' in prediction_message %}poor{% elif 'Needs' in prediction_message %}needs{% elif 'Meets' in prediction_message %}meets{% elif 'Exceeds' in prediction_message %}exceeds{% endif %}">
+        🎯 {{ prediction_message }}
+    </div>
+    {% endif %}
+
+    <script>
+        function resetForm() {
+            // Reset the form
+            document.getElementById('predictionForm').reset();
+            
+            // Reset the satisfaction score slider display
+            document.getElementById('sat-value').textContent = '3';
+            document.getElementById('satisfaction_score').value = '3';
+            
+            // Remove any prediction result
+            const predictionResult = document.querySelector('.prediction-result');
+            if (predictionResult) {
+                predictionResult.remove();
+            }
+        }
+    </script>
+</body>
+</html>

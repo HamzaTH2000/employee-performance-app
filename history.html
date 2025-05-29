@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>History of Predictions</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 1200px; /* Increased width to accommodate chart */
+            margin: 0 auto;
+            padding: 20px;
+            background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #001f3f;
+        }
+        
+        /* Dark overlay for better text readability */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        /* Navigation - Glass-like effect */
+        nav {
+            background-color: rgba(240, 244, 248, 0.95);
+            padding: 16px 0;
+            margin-bottom: 35px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        
+        nav div {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+            margin: 0;
+            padding: 0;
+            justify-content: center;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #001f3f;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 20px;
+            padding: 5px 0;
+            letter-spacing: 0.3px;
+        }
+        
+        nav a:hover {
+            color: #005f99;
+            transform: translateY(-1px);
+        }
+        
+        nav a[href="/history"] {
+            color: #005f99;
+            font-weight: 650;
+            border-bottom: 2px solid #005f99;
+            padding-bottom: 3px;
+        }
+        
+        
+        /* Page header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        
+        h1 {
+            color: #001f3f;
+            font-size: 28px;
+            margin: 0;
+        }
+        
+        /* Main content layout */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            align-items: start;
+        }
+        
+        /* Chart container */
+        .chart-container {
+            background-color: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .chart-container h3 {
+            color: #001f3f;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+        
+        #chartCanvas {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Stats below chart */
+        .chart-stats {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .chart-stats div {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        /* Table container with relative positioning */
+        .table-container {
+            position: relative;
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 10px;
+        }
+        
+        /* Table controls positioned absolutely */
+        .table-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 1;
+        }
+        
+        /* Filter dropdown */
+        .filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #333;
+            backdrop-filter: blur(4px);
+        }
+        
+        /* Clear table button */
+        .clear-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: rgba(255, 235, 238, 0.8);
+            color: #c62828;
+            border: 1px solid rgba(239, 154, 154, 0.5);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .clear-btn:hover {
+            background-color: rgba(255, 205, 210, 0.9);
+        }
+        .clear-btn i {
+            margin-right: 6px;
+            font-size: 14px;
+        }
+        
+        /* Table styling with glass effect */
+        .predictions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px; /* Space for controls */
+        }
+        .predictions-table th {
+            background-color: rgba(245, 245, 245, 0.7);
+            color: #001f3f;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 700;
+        }
+        .predictions-table td {
+            padding: 12px 15px;
+            border-top: 1px solid rgba(238, 238, 238, 0.5);
+            color: #333;
+        }
+        .predictions-table tr:hover {
+            background-color: rgba(249, 249, 249, 0.7);
+        }
+        
+        /* Performance badges */
+        .performance-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+        .exceeds {
+            background-color: rgba(102, 187, 106, 0.2);
+            color: #2e7d32;
+            border: 1px solid rgba(102, 187, 106, 0.3);
+        }
+        .meets {
+            background-color: rgba(66, 165, 245, 0.2);
+            color: #1565c0;
+            border: 1px solid rgba(66, 165, 245, 0.3);
+        }
+        .needs {
+            background-color: rgba(255, 167, 38, 0.2);
+            color: #ef6c00;
+            border: 1px solid rgba(255, 167, 38, 0.3);
+        }
+        .poor {
+            background-color: rgba(255, 107, 107, 0.2);
+            color: #c62828;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .chart-container {
+                order: -1;
+            }
+            
+            body {
+                max-width: 800px;
+            }
+            
+            nav div {
+                max-width: 800px;
+            }
+        }
+    </style>
+    <!-- Font Awesome for trash icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <div>
+            <ul>
+                <li><a href="/">Welcome</a></li>
+                <li><a href="/prediction">Prediction</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/history">History</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main content -->
+    <div class="page-header">
+        <h1>History of Predictions</h1>
+    </div>
+    
+    <div class="content-layout">
+        <!-- Table container with controls -->
+        <div class="table-container">
+            <div class="table-controls">
+                <select class="filter-dropdown" id="position-filter">
+                    <option value="all">All Positions</option>
+                    <option value="Production Technician">Production Technician</option>
+                    <option value="Software Engineer">Software Engineer</option>
+                    <option value="IT Specialist">IT Specialist</option>
+                    <option value="Network Engineer">Network Engineer</option>
+                    <option value="Sales Representative">Sales Representative</option>
+                    <option value="Database Administrator">Database Administrator</option>
+                    <option value="HR Specialist">HR Specialist</option>
+                    <option value="Data Analyst">Data Analyst</option>
+                    <option value="Accountant">Accountant</option>
+                    <option value="QA Engineer">QA Engineer</option>
+                    <option value="Business Analyst">Business Analyst</option>
+                    <option value="Market Research Analyst">Market Research Analyst</option>
+                    <option value="Technical Support Specialist">Technical Support Specialist</option>
+                    <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+                    <option value="IT Manager">IT Manager</option>
+                    <option value="Sales Manager">Sales Manager</option>
+                    <option value="Digital Marketing Specialist">Digital Marketing Specialist</option>
+                    <option value="HR Manager">HR Manager</option>
+                    <option value="Marketing Coordinator">Marketing Coordinator</option>
+                    <option value="Finance Manager">Finance Manager</option>
+                    <option value="Marketing Manager">Marketing Manager</option>
+                    <option value="Engineering Manager">Engineering Manager</option>
+                    <option value="Production Manager">Production Manager</option>
+                </select>
+                <select class="filter-dropdown" id="performance-filter">
+                    <option value="all">All Performance</option>
+                    <option value="exceeds">Exceeds Expectations</option>
+                    <option value="meets">Meets Expectations</option>
+                    <option value="needs">Needs Improvements</option>
+                    <option value="poor">Poor Performance</option>
+                </select>
+                <button class="clear-btn" id="clear-table">
+                    <i class="fas fa-trash-alt"></i> Clear Table
+                </button>
+            </div>
+            
+            <table class="predictions-table" id="predictionsTable">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Name</th>
+                        <th>Prediction Date</th>
+                        <th>Position</th>
+                        <th>Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if predictions %}
+                        {% for prediction in predictions %}
+                        <tr data-performance="{{ prediction[3].lower().replace(' ', '-') }}" data-position="{{ prediction[4] }}">
+                            <td>{{ prediction[0] }}</td>
+                            <td>{{ prediction[1] }}</td>
+                            <td>{{ prediction[2] }}</td>
+                            <td>{{ prediction[4] }}</td>
+                            <td>
+                                <span class="performance-badge 
+                                    {% if 'Exceeds' in prediction[3] %}exceeds
+                                    {% elif 'Meets' in prediction[3] %}meets
+                                    {% elif 'Needs' in prediction[3] %}needs
+                                    {% elif 'Poor' in prediction[3] %}poor
+                                    {% endif %}">
+                                    {{ prediction[3] }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                No predictions recorded yet. Make your first prediction!
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Chart container -->
+        <div class="chart-container">
+            <h3>Performance Distribution</h3>
+            <canvas id="chartCanvas" width="250" height="250"></canvas>
+            <div class="chart-stats" id="chartStats">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Performance colors matching your badges
+        const performanceColors = {
+            'Exceeds Expectations': '#2e7d32', 
+            'Meets Expectations': '#1565c0', 
+            'Needs Improvements': '#ef6c00',
+            'Poor Performance': '#c62828'
+        };
+
+        // Initialize chart variable
+        let performanceChart = null;
+        
+        // Function to count performance categories
+        function countPerformanceCategories() {
+            const rows = document.querySelectorAll('#predictionsTable tbody tr[data-performance]:not([style*="display: none"])');
+            const counts = {
+                'Exceeds Expectations': 0,
+                'Meets Expectations': 0,
+                'Needs Improvements': 0,
+                'Poor Performance': 0
+            };
+            
+            rows.forEach(row => {
+                const performanceText = row.querySelector('.performance-badge').textContent.trim();
+                if (counts.hasOwnProperty(performanceText)) {
+                    counts[performanceText]++;
+                }
+            });
+            
+            return counts;
+        }
+        
+        // Function to create/update the donut chart
+        function updateChart() {
+            const counts = countPerformanceCategories();
+            const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+            
+            // If no data, show empty state
+            if (total === 0) {
+                if (performanceChart) {
+                    performanceChart.destroy();
+                    performanceChart = null;
+                }
+                document.getElementById('chartStats').innerHTML = '<div style="color: #999; font-style: italic;">No data to display</div>';
+                return;
+            }
+            
+            // Prepare data for chart
+            const labels = [];
+            const data = [];
+            const colors = [];
+            
+            Object.entries(counts).forEach(([category, count]) => {
+                if (count > 0) {
+                    labels.push(category);
+                    data.push(count);
+                    colors.push(performanceColors[category]);
+                }
+            });
+            
+            // Create or update chart
+            const ctx = document.getElementById('chartCanvas').getContext('2d');
+            
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+            
+            performanceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: colors.map(color => color + '40'),
+                        borderWidth: 2,
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false // We'll create custom legend
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%', // Makes it a donut instead of pie
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000
+                    }
+                }
+            });
+            
+            // Update stats below chart
+            updateChartStats(counts, total);
+        }
+        
+        // Function to update chart statistics
+        function updateChartStats(counts, total) {
+            const statsContainer = document.getElementById('chartStats');
+            let statsHTML = `<div style="margin-bottom: 10px; font-weight: 600;">Total Predictions: ${total}</div>`;
+            
+            Object.entries(counts).forEach(([category, count]) => {
+                if (count > 0) {
+                    const percentage = ((count / total) * 100).toFixed(1);
+                    statsHTML += `
+                        <div>
+                            <span>
+                                <span class="stat-color" style="background-color: ${performanceColors[category]};"></span>
+                                ${category}
+                            </span>
+                            <span>${count} (${percentage}%)</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            statsContainer.innerHTML = statsHTML;
+        }
+        
+        // Combined filter function
+        function applyFilters() {
+            const positionFilter = document.getElementById('position-filter').value;
+            const performanceFilter = document.getElementById('performance-filter').value;
+            const rows = document.querySelectorAll('#predictionsTable tbody tr');
+            
+            rows.forEach(row => {
+                const position = row.dataset.position;
+                const performance = row.dataset.performance;
+                
+                const positionMatch = positionFilter === 'all' || position === positionFilter;
+                const performanceMatch = performanceFilter === 'all' || performance.includes(performanceFilter);
+                
+                if (positionMatch && performanceMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Update chart after filtering
+            updateChart();
+        }
+        
+        // Position filter functionality
+        document.getElementById('position-filter').addEventListener('change', function() {
+            applyFilters();
+        });
+
+        // Performance filter functionality
+        document.getElementById('performance-filter').addEventListener('change', function() {
+            applyFilters();
+        });
+
+        // Clear table functionality
+        document.getElementById('clear-table').addEventListener('click', function() {
+            if (confirm('Are you sure you want to permanently clear the entire prediction history? This action cannot be undone.')) {
+                // Show loading state
+                const tbody = document.querySelector('#predictionsTable tbody');
+                tbody.innerHTML = '<tr><td colspan="5" class="loading">Clearing history...</td></tr>';
+                
+                // Make API call to clear history
+                fetch('/clear_history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No predictions recorded yet. Make your first prediction!</td></tr>';
+                        // Reset filters
+                        document.getElementById('position-filter').value = 'all';
+                        document.getElementById('performance-filter').value = 'all';
+                        // Update chart
+                        updateChart();
+                    } else {
+                        alert('Error clearing history: ' + data.error);
+                        // Reload page to restore previous state
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error clearing history. Please try again.');
+                    // Reload page to restore previous state
+                    location.reload();
+                });
+            }
+        });
+        
+        // Initialize chart on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateChart();
+        });
+    </script>
+</body>
+</html>

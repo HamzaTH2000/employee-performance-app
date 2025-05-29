@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Performance Evaluation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #001f3f;
+        }
+        
+        /* Dark overlay for better text readability */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        /* Navigation - Glass-like effect */
+        nav {
+            background-color: rgba(240, 244, 248, 0.95);
+            padding: 16px 0;
+            margin-bottom: 35px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        
+        nav div {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+            margin: 0;
+            padding: 0;
+            justify-content: center;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #001f3f;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 20px;
+            padding: 5px 0;
+            letter-spacing: 0.3px;
+        }
+        
+        nav a:hover {
+            color: #005f99;
+            transform: translateY(-1px);
+        }
+        
+        nav a[href="/welcome"] {
+            color: #005f99;
+            font-weight: 650;
+            border-bottom: 2px solid #005f99;
+            padding-bottom: 3px;
+        }
+        
+        
+        /* Content container */
+        .content-container {
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        /* Main title with glass effect */
+        .main-title {
+            color: #001f3f;
+            text-align: center;
+            font-size: 45px;
+            font-weight: 820;
+            line-height: 1.2;
+            margin: 0 auto;
+            max-width: 700px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        
+        /* Description container with glass effect */
+        .description-container {
+            text-align: center;
+            max-width: 600px;
+            margin: 80px auto 0;
+            background-color: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        
+        /* Description text */
+        .description {
+            font-size: 25px;
+            color: #001f3f;
+            line-height: 1.7;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            margin-bottom: 20px;
+        }
+        
+        /* Authors section - now stacked vertically */
+        .authors {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        /* Author name styles */
+        .author-name {
+            font-weight: bold;
+            font-style: italic;
+            color: #055e86;
+            font-size: 22px; /* ⬅️ Increased from default */
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+}
+
+        
+        /* Project info styles */
+        .project-info {
+            font-size: 18px;
+            color: #001f3f;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <div>
+            <ul>
+                <li><a href="/welcome">Welcome</a></li>
+                <li><a href="/prediction">Prediction</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/history">History</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main content container -->
+    <div class="content-container">
+        <!-- Main title with glass effect -->
+        <h1 class="main-title">Optimizing Employee Performance Evaluation</h1>
+        
+        <!-- Description container with glass effect -->
+        <div class="description-container">
+            <p class="description">
+                A machine learning-based web application to classify employee performance and streamline HR decision-making.
+            </p>
+            <div class="authors">
+                <span class="author-name">Prepared By Hamza Thamlaoui</span>
+                <span class="author-name">Supervised by Dr. Fedya Telmoudi</span>
+            </div>
+            <div class="project-info">As Part of End of Studies Project</div>
+            <div class="project-info">Academic Year 2024 - 2025</div>
+        </div>
+    </div>
+</body>
+</html>

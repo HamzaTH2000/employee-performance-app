@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Performance Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F0F4F8;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* Navigation - Matching your existing style */
+        nav {
+            background-color: rgba(240, 244, 248, 0.95);
+            padding: 16px 0;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.4);
+            flex-shrink: 0;
+        }
+        
+        nav div {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+            margin: 0;
+            padding: 0;
+            justify-content: center;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #001f3f;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 20px;
+            padding: 5px 0;
+            letter-spacing: 0.3px;
+        }
+        
+        nav a:hover {
+            color: #005f99;
+            transform: translateY(-1px);
+        }
+        
+        nav a[href="/dashboard"] {
+            color: #005f99;
+            font-weight: 650;
+            border-bottom: 2px solid #005f99;
+            padding-bottom: 3px;
+        }
+        
+        /* Dashboard container */
+        .dashboard-container {
+            flex: 1;
+            min-height: 0; /* Fix for Firefox */
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* Power BI iframe */
+        .powerbi-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar - Consistent with other pages -->
+    <nav>
+        <div>
+            <ul>
+                <li><a href="/">Welcome</a></li>
+                <li><a href="/prediction">Prediction</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/history">History</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Power BI Dashboard Container -->
+    <div class="dashboard-container">
+        <iframe title="dashboard HR" 
+                class="powerbi-iframe" 
+                src="https://app.powerbi.com/view?r=eyJrIjoiYzhjOGE4MzctNTBjNi00OTczLWJhZTktYWQ1OWIxNTJkZmJiIiwidCI6ImRiZDY2NjRkLTRlYjktNDZlYi05OWQ4LTVjNDNiYTE1M2M2MSIsImMiOjl9"
+                frameborder="0" 
+                allowFullScreen="true">
+        </iframe>
+    </div>
+</body>
+</html>
+ <!-- #  frameborder="0" allowFullScreen="true"></iframe>
+# <iframe title="dashboard_pfe" width="600" height="486"  -->
+
